@@ -10,6 +10,7 @@ BASE=$(dirname "$(readlink -f "$0")")
 
 DOMAIN=$(cut -f1 < "$BASE/details")
      U=$(cut -f2 < "$BASE/details")
+     P=$(cut -f3 < "$BASE/details")
 
 if ssh-add -L | grep "The agent has no identities"
 then
@@ -17,14 +18,14 @@ then
 fi
 
 function dom {
-  echo "Connecting $DOMAIN:22222 to localhost:22222" 1>&2
-  ssh -N -A -L 22222:localhost:22222 "$DOMAIN" &
+  echo "Connecting $DOMAIN:$P to localhost:$P" 1>&2
+  ssh -N -A -L "$P":localhost:"$P" "$DOMAIN" &
   PID1="$!"
 }
 
 function dsk {
   echo "Connecting remote port 3000 to localhost:3000" 1>&2
-  ssh -N -A -L 3000:localhost:3000  "$U"@localhost -p 22222 &
+  ssh -N -A -L 3000:localhost:3000  "$U"@localhost -p "$P" &
   PID2="$!"
 }
 
