@@ -34,7 +34,7 @@ machine I use an SSH key, stored on my laptop. I use an SSH agent to propagate
 my identity across the intermediate domain, so that it never sees this key.
 
 As well as accessing GNU screen over SSH, this is useful for tunnelling
-the Hydra Web interface (see below) and occasionally for VNC access.
+the Hydra Web interface (see below), SSHFS and occasionally for VNC access.
 
 ## Hydra ##
 
@@ -73,8 +73,8 @@ We also stop Hydra whilst benchmarks are running.
 ## Nix setup ##
 
 The scripts I use to access this machine are managed in this repository. The
-canonical URL for this repo is http://chriswarbo.net/git/desktop-scripts.git but
-there should be a mirror at https://github.com/Warbo/desktop-scripts.git
+canonical URL for this repo is http://chriswarbo.net/git/desktop-scripts but
+there should be a mirror at https://github.com/Warbo/desktop-scripts
 
 Most of this machine's configuration should be done through the
 /etc/nixos/configuration.nix file. This is also managed in this repository, and
