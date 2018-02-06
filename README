@@ -1,0 +1,82 @@
+# Desktop Build Server #
+
+Chris Warburton - Last updated 2018-02-06
+
+This repository contains configuration, scripts, etc. for the desktop machine I
+use as a build server. A detailed explanation of the setup is given below, for
+investigation/debugging purposes.
+
+## Networking ##
+
+There are two ethernet sockets on this machine, but neither seems to work.
+To remedy this, I've connected a USB WiFi dongle. It uses my eduroam
+credentials with NetworkManager. There are a few scripts (nm-connect.sh,
+redo-nm.sh, etc.) which try to restart NetworkManager periodically or when it
+dies; these are rather hit and miss :(
+
+This dongle used to require some newer kernel modules than were available when I
+set up the machine, so I backported some and wrote a script (usb-wifi.sh) and
+instructions (USB_Wifi_Instructions) to initialise the dongle. This may not be
+necessary after subsequent upgrades.
+
+The script tunnel.sh will set up a reverse SSH tunnel to the domain given in the
+file 'details' (kept out of git), making this machine's port 22 (SSH) available
+on localhost as the port given in 'details'. The port is only available locally
+on that machine, it is not accessible externally (i.e. trying to connect to
+domain:port won't work; only localhost:port will work, from on that machine).
+The SSH key used to connect is password protected. Access is only allowed with a
+key, not a password.
+
+I use this tunnel to access this machine from my laptop (whether I'm sat
+next to it or on the other side of the world). I connect to the given domain and
+from there I connect to localhost:22222 which is this machine. To log in to this
+machine I use an SSH key, stored on my laptop. I use an SSH agent to propagate
+my identity across the intermediate domain, so that it never sees this key.
+
+As well as accessing GNU screen over SSH, this is useful for tunnelling
+the Hydra Web interface (see below) and occasionally for VNC access.
+
+## Hydra ##
+
+This machine is mostly used to run the Hydra build server.
+
+Hydra's job is to poll the git repositories of various projects every few
+minutes, and when new commits are found it will try to build those new
+versions. This is all based around Nix, which is one reason why this
+machine is running NixOS (the main reason is because NixOS makes sysadmin
+much easier).
+
+If Hydra's running, it will provide a localhost-only Web interface on port
+3000. This shows the current status of each project, whether anything's
+being built right now, etc.
+
+The helper scripts start-hydra.sh and stop-hydra.sh are provided in
+/home/user for turning Hydra on and off, as well hydra-restart.sh to
+restart it if it's "stuck" (i.e. when there are builds in the queue, but
+none is being run). hydra-loop.sh will run hydra-restart.sh periodically.
+
+## Benchmarks ##
+
+Another use for this machine is benchmarking experiments. The projects
+being benchmarked are those in the 'te' (Theory Exploration) category in
+Hydra.
+
+We don't actually use Hydra to run benchmarks, since we want each
+benchmark to have the whole machine to itself (as far as practical),
+whilst we want Hydra to build as much as possible in parallel (we have
+multiple cores, after all).
+
+Hence we usually run benchmarks from individual git checkouts in
+/home/user, and the projects themselves tend to use ASV for benchmarking.
+We also stop Hydra whilst benchmarks are running. 
+
+## Nix setup ##
+
+The scripts I use to access this machine are managed in this repository. The
+canonical URL for this repo is http://chriswarbo.net/git/desktop-scripts.git but
+there should be a mirror at https://github.com/Warbo/desktop-scripts.git
+
+Most of this machine's configuration should be done through the
+/etc/nixos/configuration.nix file. This is also managed in this repository, and
+that path on the machine is actually just a symlink to a git checkout of this
+repo stored in /home/user.
