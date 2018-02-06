@@ -89,6 +89,43 @@
 
     # See https://github.com/NixOS/hydra/issues/433#issuecomment-321212080
     buildMachinesFiles = [];
+
+    # Hydra uses Nix's "restricted mode" when evaluating. This prevents certain
+    # actions from being taken during evaluation, notably:
+    #
+    # - Use of the 'fetchTarball' and 'fetchurl' functions from 'builtins'.
+    #   These aren't "fixed-output" derivations, so their results aren't checked
+    #   against a given hash. We can do without these, as unchecked downloads
+    #   are a bad idea anyway.
+    # - Access to file paths which aren't in one of the inputs given in a
+    #   project's configuration. This is a very severe limitation, since it
+    #   means we can't 'import' Nix files that we've fetched or generated
+    #   during the evaluation phase. In particular, if some (fixed, checked
+    #   version of a) dependency provides Nix code for us to use, we're not
+    #   allowed to import it.
+    #
+    # Whilst these limitations are arguably useful on public-facing servers, or
+    # when potentially malicious actors are sending jobs to be built, they're
+    # less useful on our local-only instance which we only use to build our own
+    # projects.
+    #
+    # Hence, we patch Hydra to disable restricted mode.
+    package =
+      with pkgs;
+      with rec {
+        # Firstly we must fix ParamsValidate, which fails to build on i686
+        # https://github.com/NixOS/nixpkgs/pull/32001
+        fixed = hydra.override {
+          perlPackages = perlPackages.override {
+            overrides = {
+              ParamsValidate = perlPackages.ParamsValidate.overrideAttrs (old: {
+                perlPreHook = "export LD=$CC";
+              });
+            };
+          };
+        };
+      };
+      fixed;
   };
 
   # Hydra uses postresql
