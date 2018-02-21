@@ -8,11 +8,6 @@ echo "Waiting for Hydra processes to disappear"
 while true
 do
     # Look for any processes including 'hydra', except for us!
-    FOUND=$(pgrep -f hydra)
-    if echo "$FOUND" | grep -v "^$$ "
-    then
-        sleep 10
-    else
-        break
-    fi
+    FOUND=$(ps auxww | grep hydra | grep -v grep | grep -v 'stop-hydra')
+    [[ -n "$FOUND" ]] || break
 done
