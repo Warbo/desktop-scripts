@@ -5,7 +5,14 @@ sudo systemctl stop hydra-evaluator hydra-queue-runner hydra-server \
                     hydra-send-stats
 
 echo "Waiting for Hydra processes to disappear"
-while pgrep -f hydra
+while true
 do
-    sleep 10
+    # Look for any processes including 'hydra', except for us!
+    FOUND=$(pgrep -f hydra)
+    if echo "$FOUND" | grep -v "^$$ "
+    then
+        sleep 10
+    else
+        break
+    fi
 done
