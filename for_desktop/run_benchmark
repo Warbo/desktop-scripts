@@ -17,6 +17,7 @@ function run {
         FOUND=1
         [[ "$DRYRUN" -eq 0 ]] || continue
 
+        # The benchmark-specific code here
         case "$BENCHMARK" in
             isaplanner-cutoff)
                 (cd benchmarking/isaplanner-tip;
@@ -40,6 +41,7 @@ cd "$HOME"
 # Requires sudo, so user will be prompted for their password
 echo "Shutting down Hydra" 1>&2
 "$BASE/stop-hydra.sh"
+sleep 10;
 
 # We want Hydra to come back up after, so that updates get built, etc. However,
 # that's a little tricky since it requires sudo, and the user probably isn't sat
