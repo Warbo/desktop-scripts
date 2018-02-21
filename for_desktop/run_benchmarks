@@ -37,10 +37,30 @@ BASE=$(dirname "$(readlink -f "$0")")
 
 cd "$HOME"
 
+# Requires sudo, so user will be prompted for their password
 echo "Shutting down Hydra" 1>&2
 "$BASE/stop-hydra.sh"
 
+# We want Hydra to come back up after, so that updates get built, etc. However,
+# that's a little tricky since it requires sudo, and the user probably isn't sat
+# in front of the terminal after several hours of benchmarking.
+
+# To solve this, we use the file DONE to indicate that the benchmarking has
+# finished and Hydra can be started.
+rm -f DONE
+
+# Use the sudo privileges we currently have to start a loop which checks whether
+# DONE exists yet, and restart Hydra if so.
+sudo sh -c "while [ ! -f DONE ]; do sleep 60; done; \"$BASE/start-hydra.sh\"" &
+
+# Force the loop to stop itself if we die
+function cleanup {
+    touch DONE
+}
+trap cleanup EXIT
+
+# Do the actual benchmarking
 run
 
-echo "Starting Hydra" 1>&2
-"$BASE/start-hydra.sh"
+# Start Hydra again
+touch DONE
