@@ -12,7 +12,7 @@ function run {
     FOUND=0
     for BENCHMARK in isaplanner-cutoff
     do
-        [[ "x$1" -eq "x$BENCHMARK" ]] || continue
+        [[ "x$1" = "x$BENCHMARK" ]] || continue
 
         FOUND=1
         [[ "$DRYRUN" -eq 0 ]] || continue
