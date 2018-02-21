@@ -10,4 +10,5 @@ do
     # Look for any processes including 'hydra', except for us!
     FOUND=$(ps auxww | grep hydra | grep -v grep | grep -v 'stop-hydra')
     [[ -n "$FOUND" ]] || break
+    sleep 10
 done
