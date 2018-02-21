@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -e
+
+function fail {
+    echo -e "$*" 1>&2
+    exit 1
+}
+
+[[ "$#" -eq 1 ]] || fail "Need a benchmark name as arg"
+
+function run {
+    FOUND=0
+    for BENCHMARK in isaplanner-cutoff
+    do
+        [[ "x$1" -eq "x$BENCHMARK" ]] || continue
+
+        FOUND=1
+        [[ "$DRYRUN" -eq 0 ]] || continue
+
+        case "$BENCHMARK" in
+            isaplanner-cutoff)
+                (cd benchmarking/isaplanner-tip;
+                 F=$(nix-build --show-trace -E \
+                     'with import ./. {}; defs.sampling.find-cutoff-time') ||
+                     fail "Failed to build find-cutoff-time script"
+                 "$F" 1> cutoff.stdout 2> cutoff.stderr);;
+        esac
+    done
+    [[ "$FOUND" -eq 1 ]] || fail "Benchmark $1 not found"
+}
+
+export DRYRUN=1
+run
+export DRYRUN=0
+
+BASE=$(dirname "$(readlink -f "$0")")
+
+cd "$HOME"
+
+echo "Shutting down Hydra" 1>&2
+"$BASE/stop-hydra.sh"
+
+run
+
+echo "Starting Hydra" 1>&2
+"$BASE/start-hydra.sh"
