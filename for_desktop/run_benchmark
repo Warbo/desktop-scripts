@@ -30,7 +30,7 @@ function run {
 }
 
 export DRYRUN=1
-run
+run "$@"
 export DRYRUN=0
 
 BASE=$(dirname "$(readlink -f "$0")")
@@ -60,7 +60,7 @@ function cleanup {
 trap cleanup EXIT
 
 # Do the actual benchmarking
-run
+run "$@"
 
 # Start Hydra again
 touch DONE
