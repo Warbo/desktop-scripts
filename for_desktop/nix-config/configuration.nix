@@ -48,19 +48,20 @@
   time.timeZone = "Europe/London";
 
   environment.systemPackages = with pkgs; [
-    autossh networkmanagerapplet screen sshfsFuse trayer usbutils wirelesstools wpa_supplicant xterm
+    autossh networkmanagerapplet screen sshfsFuse trayer usbutils wirelesstools
+    wpa_supplicant xterm
   ];
 
   # Bump up build users
   nix.nrBuildUsers = 50;
 
-  # Routinely collect garbage to prevent disk full
-  nix.gc.automatic = true;
-  nix.gc.dates     = "daily";
-  nix.gc.options   = "--max-freed ${toString (1024 * 1024 * 1024 * 5)}";
+  # Don't collect garbage automatically, since it may interfere with benchmarks
+  nix.gc.automatic = false;
+  #nix.gc.dates     = "daily";
+  #nix.gc.options   = "--max-freed ${toString (1024 * 1024 * 1024 * 5)}";
 
-  # We want some parallelism, but setting this too high can exhaust our memory (since we're building
-  # memory-intensive things)
+  # We want some parallelism, but setting this too high can exhaust our memory
+  # (since we're building memory-intensive things)
   nix.maxJobs = 6;
 
   # For SSHFS
