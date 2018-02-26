@@ -10,7 +10,7 @@ function fail {
 
 function run {
     FOUND=0
-    for BENCHMARK in isaplanner-cutoff
+    for BENCHMARK in isaplanner-cutoff haskell-te
     do
         [[ "x$1" = "x$BENCHMARK" ]] || continue
 
