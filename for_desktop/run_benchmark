@@ -20,11 +20,14 @@ function run {
         # The benchmark-specific code here
         case "$BENCHMARK" in
             isaplanner-cutoff)
-                (cd benchmarking/isaplanner-tip;
+                (cd "$HOME"/benchmarking/isaplanner-tip;
                  F=$(nix-build --show-trace -E \
                      'with import ./. {}; defs.sampling.find-cutoff-time') ||
                      fail "Failed to build find-cutoff-time script"
                  "$F" 1> cutoff.stdout 2> cutoff.stderr);;
+            haskell-te)
+                (cd "$HOME"/benchmarking/haskell-te;
+                 nix-shell --run 'asv run' benchmarkEnv.nix);;
         esac
     done
     [[ "$FOUND" -eq 1 ]] || fail "Benchmark $1 not found"
