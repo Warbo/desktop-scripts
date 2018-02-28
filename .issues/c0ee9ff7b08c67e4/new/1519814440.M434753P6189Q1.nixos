@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Wed, 28 Feb 2018 10:39:06 +0000
+State: new
+Subject: Check for and start ssh-agent in tunnel.sh
+Message-Id: <c0ee9ff7b08c67e4-0-artemis@nixos>
+
+The tunnel.sh script will ask for a passphrase for our key. To prevent
+it asking again after a network interruption, we should be running
+ssh-agent.
+
+The script currently supports *using* ssh-agent if it's already running,
+but doesn't actually check if it's running or start it. It should.

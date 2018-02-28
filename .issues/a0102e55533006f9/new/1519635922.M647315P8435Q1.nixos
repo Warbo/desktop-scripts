@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Mon, 26 Feb 2018 09:04:59 +0000
+State: new
+Subject: Restart hydra hangs
+Message-Id: <a0102e55533006f9-0-artemis@nixos>
+
+Probably spotting its own parent process

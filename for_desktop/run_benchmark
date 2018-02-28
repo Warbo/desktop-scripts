@@ -10,7 +10,7 @@ function fail {
 
 function run {
     FOUND=0
-    for BENCHMARK in isaplanner-cutoff haskell-te
+    for BENCHMARK in haskell-te isacosy isaplanner-cutoff
     do
         [[ "x$1" = "x$BENCHMARK" ]] || continue
 
@@ -19,15 +19,21 @@ function run {
 
         # The benchmark-specific code here
         case "$BENCHMARK" in
+
+            haskell-te)
+                (cd "$HOME"/benchmarking/haskell-te;
+                 nix-shell --show-trace --run 'asv run' benchmarkEnv.nix);;
+
+            isacosy)
+                (cd "$HOME"/benchmarking/isaplanner-tip;
+                 nix-shell --show-trace --run 'asv run');;
+
             isaplanner-cutoff)
                 (cd "$HOME"/benchmarking/isaplanner-tip;
                  F=$(nix-build --show-trace -E \
                      'with import ./. {}; defs.sampling.find-cutoff-time') ||
                      fail "Failed to build find-cutoff-time script"
                  "$F" 1> cutoff.stdout 2> cutoff.stderr);;
-            haskell-te)
-                (cd "$HOME"/benchmarking/haskell-te;
-                 nix-shell --run 'asv run' benchmarkEnv.nix);;
         esac
     done
     [[ "$FOUND" -eq 1 ]] || fail "Benchmark $1 not found"
