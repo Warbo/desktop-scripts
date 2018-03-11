@@ -22,8 +22,8 @@ function run {
 
             haskell-te)
                 (cd "$HOME"/benchmarking/haskell-te;
-                 nix-shell --show-trace                                    \
-                           --run 'asv run --bench quickspectip.track_data' \
+                 nix-shell --show-trace                         \
+                           --run 'asv run --bench quickspectip' \
                            benchmarkEnv.nix);;
 
             isacosy)
