@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Tue, 05 Jun 2018 01:45:59 +0100
+State: new
+Subject: Ensure benchmark_copy results persist
+Message-Id: <fa47b5693cf1e557-0-artemis@nixos>
+
+So far we're copying to /opt/benchmarks, that's fine. We need to make
+these accessible to the Web server. I've done this by symlinking
+/var/www/html/benchmarks to /opt/benchmarks. This seems fragile: in
+particular, we should look at how the git symlinks are currently set up
+for chriswarbo.net, and add the benchmarks to that.
