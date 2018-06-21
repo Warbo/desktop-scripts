@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Replace the path below with nix-delegate once that's in basic and installed
+echo "FIXME: Don't hard-code nix-delegate in delegate_builds" 1>&2
+
+[[ "$#" -eq 0 ]] &&
+  echo "Warning: delegate_builds expects some arguments. Trying anyway..." 1>&2
+
+[[ "$#" -gt 1 ]] &&
+  echo "Warning: delegate_builds given multiple args. If some of these are to
+         control nix-delegate that's fine, but if they're all part of one
+         command then you might hit shell escaping issues. If so, try quoting
+         the entire command, e.g. going from:
+
+           delegate_builds nix-build -E \"(import <nixpkgs> {}).foo\"
+
+         To:
+
+           delegate_builds 'nix-build -E \"(import <nixpkgs> {}).foo\"'" 1>&2
+
+/nix/store/6m5ihndkj76nidijr1zv11q9nf52ywjb-nix-delegate-1.0.0/bin/nix-delegate --host desktop "$@"
