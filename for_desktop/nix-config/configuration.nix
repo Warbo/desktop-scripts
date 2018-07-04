@@ -240,6 +240,31 @@
     };
   };
 
+  systemd.services.tunnel = {
+    enable        = true;
+    description   = "Set up SSH tunnel";
+    wantedBy      = [ "default.target"        ];
+    after         = [ "network-online.target" ];
+    wants         = [ "network-online.target" ];
+    serviceConfig = {
+      Type      = "simple";
+      User      = "user";
+      ExecStart = pkgs.writeScript "tunnel.sh" ''
+        #!/bin/sh
+        export PATH="$PATH:${pkgs.bash}/bin:${pkgs.openssh}/bin:${pkgs.autossh}/bin"
+        cd
+        while true
+        do
+          if /run/wrappers/bin/ping -c 1 google.com
+          then
+            ./tunnel.sh
+          fi
+          sleep 20
+        done
+      '';
+    };
+  };
+
   # Try to make USB WiFi work automatically
   systemd.services.wifiDongle = {
     wantedBy      = [ "network.target"     ];
