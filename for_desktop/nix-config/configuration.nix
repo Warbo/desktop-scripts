@@ -267,14 +267,19 @@
 
   # Try to make USB WiFi work automatically
   systemd.services.wifiDongle = {
+    enable        = true;
+    description   = "Enable WiFi dongle";
     wantedBy      = [ "network.target"     ];
     after         = [ "network-pre.target" ];
     serviceConfig = {
-      Type      = "oneshot";
+      Type      = "simple";
       User      = "root";
-      ExecStart = ''
-        modprobe rt2800usb
+      ExecStart = pkgs.writeScript "wifi-start.sh" ''
+        #!/bin/sh
+        echo "Enabling WiFi dongle" 1>&2
+        "${pkgs.kmod}/bin/modprobe" rt2800usb
         echo 148F 5370 > /sys/bus/usb/drivers/rt2800usb/new_id
+        while true; do sleep 60; done
       '';
     };
   };
