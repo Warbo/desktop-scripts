@@ -4,9 +4,19 @@
 
 { config, pkgs, ... }:
 
+with rec {
+  inherit (import ((import <nixpkgs> { overlays = []; }).fetchgit {
+    url    = http://chriswarbo.net/git/nix-config.git;
+    rev    = "f5bf5f0";
+    sha256 = "1f3n5fgrqpxk3mnmpp1srrcbldasi44ymknl3y6hmrid8jigjnx0";
+  })) latestNixCfg;
+};
 {
   # Include the results of the hardware scan.
-  imports = [ ./hardware-configuration.nix ];
+  imports = [
+    ./hardware-configuration.nix
+    "${latestNixCfg}/nixos/modules/laminar.nix"
+  ];
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub = {
@@ -33,9 +43,6 @@
     extraHosts            = with builtins; ''
       ${builtins.trace "FIXME: https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069"
                        "146.185.144.154	lipa.ms.mff.cuni.cz"}
-
-      ${builtins.trace "FIXME: https://www.reddit.com/r/haskell/comments/8bofby/unplanned_hackage_downtime/"
-                       "hackage.fpcomplete.com hackage.haskell.org"}
     '';
   };
 
@@ -220,6 +227,12 @@
   systemd.services.nix-daemon.serviceConfig.OOMScoreAdjust = "1000";
   systemd.services.nix-daemon.serviceConfig.MemoryMax      = "3G";
   systemd.services.nix-daemon.serviceConfig.MemoryHigh     = "1G";
+
+  # Laminar continuous integration server
+  services.laminar = {
+    enable   = true;
+    bindHttp = "*:4000";  # Default 8080 clashes with IPFS
+  };
 
   services.xserver = {
     enable = true;

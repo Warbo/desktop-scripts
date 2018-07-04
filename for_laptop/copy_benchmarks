@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+shopt -s nullglob
+
+ping -c 1 google.com > /dev/null 2>&1 || {
+    echo "Not online, bailing out" 1>&2
+    exit
+}
+
+ssh chriswarbo.net true || {
+    echo "Couldn't connect to chriswarbo.net, bailing out" 1>&2
+    exit
+}
+
+for P in "$HOME/DesktopFiles/tmp/benchmark-runner-cache"/*-*
+do
+    NAME=$(basename "$P" | cut -d '-' -f2-)
+    echo "NAME: $NAME" 1>&2
+
+    RESULT_CACHE="$P/html/latest"
+    [[ -e "$RESULT_CACHE" ]] || {
+        echo "No HTML dir found, bailing out" 1>&2
+        continue
+    }
+
+    DEST=/opt/benchmarks/"$NAME"
+    ssh chriswarbo.net [[ -d "$DEST" ]] || ssh chriswarbo.net mkdir "$DEST"
+    rsync -avh --delete "$RESULT_CACHE"/ chriswarbo.net:"$DEST"/
+done
