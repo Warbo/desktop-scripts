@@ -29,14 +29,20 @@
 
   networking = {
     hostName              = "nixos";
-    enableRalinkFirmware  = true;
     networkmanager.enable = true;
-    extraHosts            = builtins.trace "FIXME: https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069" ''
-      146.185.144.154	lipa.ms.mff.cuni.cz
+    extraHosts            = with builtins; ''
+      ${builtins.trace "FIXME: https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069"
+                       "146.185.144.154	lipa.ms.mff.cuni.cz"}
+
+      ${builtins.trace "FIXME: https://www.reddit.com/r/haskell/comments/8bofby/unplanned_hackage_downtime/"
+                       "hackage.fpcomplete.com hackage.haskell.org"}
     '';
   };
 
-  hardware.enableAllFirmware = true;
+  hardware = {
+    enableAllFirmware             = true;
+    enableRedistributableFirmware = true;
+  };
   nixpkgs.config.allowUnfree = true; # Needed for firmware
 
   i18n = {
@@ -238,16 +244,46 @@
     };
   };
 
+  systemd.services.tunnel = {
+    enable        = true;
+    description   = "Set up SSH tunnel";
+    wantedBy      = [ "default.target"        ];
+    after         = [ "network-online.target" ];
+    wants         = [ "network-online.target" ];
+    serviceConfig = {
+      Type      = "simple";
+      User      = "user";
+      ExecStart = pkgs.writeScript "tunnel.sh" ''
+        #!/bin/sh
+        export PATH="$PATH:${pkgs.bash}/bin:${pkgs.openssh}/bin:${pkgs.autossh}/bin"
+        cd
+        while true
+        do
+          if /run/wrappers/bin/ping -c 1 google.com
+          then
+            ./tunnel.sh
+          fi
+          sleep 20
+        done
+      '';
+    };
+  };
+
   # Try to make USB WiFi work automatically
   systemd.services.wifiDongle = {
+    enable        = true;
+    description   = "Enable WiFi dongle";
     wantedBy      = [ "network.target"     ];
     after         = [ "network-pre.target" ];
     serviceConfig = {
-      Type      = "oneshot";
+      Type      = "simple";
       User      = "root";
-      ExecStart = ''
-        modprobe rt2800usb
+      ExecStart = pkgs.writeScript "wifi-start.sh" ''
+        #!/bin/sh
+        echo "Enabling WiFi dongle" 1>&2
+        "${pkgs.kmod}/bin/modprobe" rt2800usb
         echo 148F 5370 > /sys/bus/usb/drivers/rt2800usb/new_id
+        while true; do sleep 60; done
       '';
     };
   };
