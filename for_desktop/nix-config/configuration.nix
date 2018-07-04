@@ -29,14 +29,16 @@
 
   networking = {
     hostName              = "nixos";
-    enableRalinkFirmware  = true;
     networkmanager.enable = true;
     extraHosts            = builtins.trace "FIXME: https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069" ''
       146.185.144.154	lipa.ms.mff.cuni.cz
     '';
   };
 
-  hardware.enableAllFirmware = true;
+  hardware = {
+    enableAllFirmware             = true;
+    enableRedistributableFirmware = true;
+  };
   nixpkgs.config.allowUnfree = true; # Needed for firmware
 
   i18n = {
