@@ -40,8 +40,9 @@ with rec {
   networking = {
     hostName              = "nixos";
     networkmanager.enable = true;
-    extraHosts            = builtins.trace "FIXME: https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069" ''
-      146.185.144.154	lipa.ms.mff.cuni.cz
+    extraHosts            = with builtins; ''
+      ${builtins.trace "FIXME: https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069"
+                       "146.185.144.154	lipa.ms.mff.cuni.cz"}
     '';
   };
 
