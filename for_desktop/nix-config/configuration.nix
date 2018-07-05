@@ -12,6 +12,8 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
     "${latestNixCfg}/nixos/modules/laminar.nix"
   ];
 
+  nixpkgs.overlays = import "${latestNixCfg}/overlays.nix";
+
   # Use the GRUB 2 boot loader.
   boot.loader.grub = {
     enable  = true;
@@ -226,6 +228,7 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
   services.laminar = {
     enable   = true;
     bindHttp = "*:4000";  # Default 8080 clashes with IPFS
+    cfg      = "/dev/null";
   };
 
   services.xserver = {
