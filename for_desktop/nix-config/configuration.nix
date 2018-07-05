@@ -4,13 +4,7 @@
 
 { config, pkgs, ... }:
 
-with rec {
-  inherit (import ((import <nixpkgs> { overlays = []; }).fetchgit {
-    url    = http://chriswarbo.net/git/nix-config.git;
-    rev    = "f5bf5f0";
-    sha256 = "1f3n5fgrqpxk3mnmpp1srrcbldasi44ymknl3y6hmrid8jigjnx0";
-  })) latestNixCfg;
-};
+with { inherit (import /home/user/nix-config) latestNixCfg; };
 {
   # Include the results of the hardware scan.
   imports = [
