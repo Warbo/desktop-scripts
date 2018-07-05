@@ -278,6 +278,44 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
       '';
     };
   };
+  systemd.services.tunnel-restart = {
+    enable        = true;
+    description   = "Monitor SSH tunnel";
+    wantedBy      = [ "default.target" ];
+    serviceConfig = {
+      Type      = "simple";
+      User      = "user";
+      ExecStart = pkgs.writeScript "tunnel-restart.sh" ''
+        #!/bin/sh
+        export PATH="$PATH:${pkgs.bash}/bin:${pkgs.openssh}/bin:${pkgs.autossh}/bin"
+        KILL=0
+        while true
+        do
+          if [[ "$KILL" -eq 1 ]]
+          then
+            killall autossh
+            sleep 60
+          fi
+          KILL=0
+          if ! /run/wrappers/bin/ping -c 1 google.com
+          then
+            echo "Not online" 1>&2
+            KILL=1
+            continue
+          fi
+          if ssh -A -t -i ~/.ssh/cw_rsa cw sudo lsof -i -n | grep ssh | grep 22222
+          then
+            true
+          else
+            echo "No remote tunnel found" 1>&2
+            KILL=1
+            continue
+          fi
+          sleep 30
+        done
+      '';
+    };
+  };
 
   # Try to make USB WiFi work automatically
   systemd.services.wifiDongle = {
