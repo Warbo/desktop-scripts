@@ -224,6 +224,34 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
   systemd.services.nix-daemon.serviceConfig.MemoryMax      = "3G";
   systemd.services.nix-daemon.serviceConfig.MemoryHigh     = "1G";
 
+  services.cron =
+    with pkgs;
+    with {
+      updateGitRepos = wrap {
+        name   = "updateGitRepos";
+        paths  = [ bash git ];
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+          cd /home/user
+          # Avoid laminar-config, since it gets its own cron job
+          for R in desktop-scripts isaplanner-tip nix-config warbo-utilities \
+                   writing
+          do
+            pushd "$R" > /dev/null
+              git pull --all
+            popd > /dev/null
+          done
+        '';
+      };
+    };
+    {
+      enable         = true;
+      systemCronJobs = [
+        "*/10 * * * *      user    ${updateGitRepos}"
+      ];
+    };
+
   # Laminar continuous integration server
   services.laminar = {
     enable   = true;
