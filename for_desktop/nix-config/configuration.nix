@@ -255,6 +255,7 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
           git fetch --all
           if git status 2>&1 | grep 'branch is behind'
           then
+            git pull --all
             ./install
           fi
         '';
