@@ -244,11 +244,27 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
           done
         '';
       };
+      updateLaminarCfg = wrap {
+        name   = "updateLaminarCfg";
+        paths  = [ bash git nix ];
+        vars   = withNix {};
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+          cd /home/user/laminar-config
+          git fetch --all
+          if git status 2>&1 | grep 'branch is behind'
+          then
+            ./install
+          fi
+        '';
+      };
     };
     {
       enable         = true;
       systemCronJobs = [
-        "*/10 * * * *      user    ${updateGitRepos}"
+        "*/30 * * * *      user    ${updateGitRepos}"
+        "*/30 * * * *      user    ${updateLaminarCfg}"
       ];
     };
 
@@ -256,7 +272,7 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
   services.laminar = {
     enable   = true;
     bindHttp = "*:4000";  # Default 8080 clashes with IPFS
-    cfg      = "/dev/null";
+    cfg      = "/home/user/LaminarCfg";
   };
 
   services.xserver = {
