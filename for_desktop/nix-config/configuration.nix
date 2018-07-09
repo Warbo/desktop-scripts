@@ -56,6 +56,8 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
 
   time.timeZone = "Europe/London";
 
+  environment.sessionVariables.NIX_REMOTE = "daemon";
+
   environment.systemPackages = with pkgs; [
     autossh networkmanagerapplet screen sshfsFuse trayer usbutils wirelesstools
     wpa_supplicant xterm
