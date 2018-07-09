@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+[[ -n "$SSH_AUTH_SOCK" ]] || export SSH_AUTH_SOCK="/run/user/1000/ssh-agent"
 if ssh-add -L | grep "The agent has no identities"
 then
     ssh-add "$HOME/.ssh/id_rsa"
