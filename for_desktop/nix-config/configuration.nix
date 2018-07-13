@@ -10,6 +10,7 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
   imports = [
     ./hardware-configuration.nix
     "${latestNixCfg}/nixos/modules/laminar.nix"
+    "${latestNixCfg}/nixos/modules/nix-daemon-tunnel.nix"
   ];
 
   nixpkgs.overlays = import "${latestNixCfg}/overlays.nix";
@@ -84,6 +85,9 @@ with { inherit (import /home/user/nix-config) latestNixCfg; };
 
   services.openssh.enable = true;
   services.openssh.forwardX11 = true;
+
+  # Provides a socket which nixbld users can connect to in lieu of nix-daemon
+  services.nix-daemon-tunnel.enable = true;
 
   services.hydra = {
     # Server options; changing port from 3000 doesn't seem to have an effect
