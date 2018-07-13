@@ -4,16 +4,16 @@
 
 { config, pkgs, ... }:
 
-with { inherit (import /home/user/nix-config) latestNixCfg; };
+with { nix-config = /home/user/nix-config; };
 {
   # Include the results of the hardware scan.
   imports = [
     ./hardware-configuration.nix
-    "${latestNixCfg}/nixos/modules/laminar.nix"
-    "${latestNixCfg}/nixos/modules/nix-daemon-tunnel.nix"
+    "${nix-config}/nixos/modules/laminar.nix"
+    "${nix-config}/nixos/modules/nix-daemon-tunnel.nix"
   ];
 
-  nixpkgs.overlays = import "${latestNixCfg}/overlays.nix";
+  nixpkgs.overlays = import "${nix-config}/overlays.nix";
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub = {
